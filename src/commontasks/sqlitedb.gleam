@@ -2,8 +2,6 @@ import gleam/dynamic
 import gleam/result
 import sqlight
 
-const db_name = "vegetables.sqlite3"
-
 pub type Vegetable {
   Vegetable(id: Int, name: String, origin: String)
 }
@@ -15,8 +13,8 @@ pub type DbError {
   SqlightError(sqlight.Error)
 }
 
-pub fn connect(f: fn(sqlight.Connection) -> a) -> a {
-  use db <- sqlight.with_connection(db_name)
+pub fn connect(name: String, f: fn(sqlight.Connection) -> a) -> a {
+  use db <- sqlight.with_connection(name)
   let assert Ok(_) = sqlight.exec("pragma foreign_keys = on;", db)
   f(db)
 }
@@ -41,7 +39,7 @@ pub fn create(
     "insert into
         vegetables (
             name,
-            origin,
+            origin
         )
     values
         (?1, ?2)
@@ -73,7 +71,7 @@ pub fn read(id: Int, db: sqlight.Connection) -> Result(Vegetable, DbError) {
     "select
         id,
         name,
-        origin,
+        origin
     from
        vegetables
     where
